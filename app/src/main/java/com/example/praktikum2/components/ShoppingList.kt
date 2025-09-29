@@ -1,59 +1,30 @@
 package com.example.praktikum2.components
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.praktikum2.ui.theme.ShoppingListTheme
+import com.example.praktikum2.model.ShoppingItem
 
 @Composable
-fun ShoppingList(items: List<String>) {
+fun ShoppingList(
+    items: List<ShoppingItem>,
+    onCheckChange: (ShoppingItem) -> Unit,
+    onDeleteItem: (ShoppingItem) -> Unit
+) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp)
     ) {
-        items(items) { item ->
-            ShoppingListItem(item)
-        }
-    }
-}
-
-@Composable
-fun ShoppingListItem(item: String) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = item,
-                style = MaterialTheme.typography.bodyLarge
+        items(items, key = { it.id }) { item ->
+            ShoppingListItem(
+                item = item,
+                onCheckChange = onCheckChange,
+                onDeleteItem = onDeleteItem
             )
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ShoppingListPreview() {
-    ShoppingListTheme {
-        ShoppingList(items = listOf("Milk", "Bread", "Eggs", "Apples"))
     }
 }
