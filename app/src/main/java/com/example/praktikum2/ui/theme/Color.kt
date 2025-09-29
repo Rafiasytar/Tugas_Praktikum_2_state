@@ -2,10 +2,22 @@ package com.example.praktikum2.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// Light mode
+val HubBlue = Color(0xFF003366) // Mengganti warna oren menjadi biru dongker
+val HubOnBlue = Color(0xFFFFFFFF)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val HubBackgroundLight = Color(0xFFFFFFFF)
+val HubOnBackgroundLight = Color(0xFF000000)
+
+val HubSurfaceLight = Color(0xFFFFFFFF)
+val HubOnSurfaceLight = Color(0xFF000000)
+
+// Dark mode
+val HubBlueDark = Color(0xFF003366) // Mengganti warna oren menjadi biru dongker
+val HubOnBlueDark = Color(0xFF000000)
+
+val HubBackgroundDark = Color(0xFF000000)
+val HubOnBackgroundDark = Color(0xFFFFFFFF)
+
+val HubSurfaceDark = Color(0xFF1A1A1A)
+val HubOnSurfaceDark = Color(0xFFFFFFFF)
