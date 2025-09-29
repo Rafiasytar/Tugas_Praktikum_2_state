@@ -16,9 +16,9 @@ import com.example.praktikum2.ui.theme.Praktikum2Theme
 @Composable
 fun Title() {
     Text(
-        text = "Shopping List",
+        text = "ShoppingList",
         style = MaterialTheme.typography.headlineLarge.copy(
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.ExtraBold,
             fontSize = 32.sp,
             color = MaterialTheme.colorScheme.primary
         ),

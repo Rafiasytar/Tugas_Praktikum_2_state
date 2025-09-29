@@ -1,12 +1,13 @@
 package com.example.praktikum2
 
-// PERBAIKAN: Import yang diperlukan
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -14,79 +15,114 @@ import com.example.praktikum2.components.ItemInput
 import com.example.praktikum2.components.SearchInput
 import com.example.praktikum2.components.ShoppingList
 import com.example.praktikum2.components.Title
-import com.example.praktikum2.model.ShoppingItem
-import com.example.praktikum2.model.ShoppingItemListSaver // Menggunakan saver yang sudah diperbaiki
+import com.example.praktikum2.components.ThemeSwitcher
 import com.example.praktikum2.ui.theme.Praktikum2Theme
+import com.example.praktikum2.ui.theme.ThemeMode
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-@Composable
-fun ShoppingListScreen() {
-    var newItemText by rememberSaveable { mutableStateOf("") }
-    var searchQuery by rememberSaveable { mutableStateOf("") }
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            var themeMode by remember { mutableStateOf(ThemeMode.SYSTEM) }
 
-    // PERBAIKAN: Menggunakan ShoppingItemListSaver yang sudah dikustom
-    val shoppingItems = rememberSaveable(saver = ShoppingItemListSaver) {
-        // Inisialisasi daftar
-        mutableStateListOf<ShoppingItem>()
-    } as SnapshotStateList<ShoppingItem> // Casting diperlukan karena saver mengembalikan list yang dapat diubah
+            Praktikum2Theme(themeMode = themeMode) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    ShoppingListApp(modifier = Modifier.fillMaxSize())
 
-    // Daftar item yang difilter
-    val filteredItems: List<ShoppingItem> by remember(searchQuery, shoppingItems) {
-        derivedStateOf {
-            if (searchQuery.isBlank()) {
-                shoppingItems
-            } else {
-                // Fungsi .filter tersedia
-                shoppingItems.filter { it.name.contains(searchQuery, ignoreCase = true) }
+                    ThemeSwitcher(
+                        currentMode = themeMode,
+                        onModeChange = { themeMode = it },
+                        modifier = Modifier.align(Alignment.BottomEnd)
+                    )
+                }
             }
         }
     }
+}
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(WindowInsets.safeDrawing.asPaddingValues())
-            .padding(horizontal = 16.dp)
-    ) {
-        Title()
-        ItemInput(
-            text = newItemText,
-            onTextChange = { newItemText = it },
-            onAddItem = {
-                if (newItemText.isNotBlank()) {
-                    shoppingItems.add(ShoppingItem(name = newItemText))
-                    newItemText = ""
-                }
-            }
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        SearchInput(
-            query = searchQuery,
-            onQueryChange = { searchQuery = it }
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+@Composable
+fun ShoppingListApp(modifier: Modifier = Modifier) {
+    var newItemText by rememberSaveable { mutableStateOf("") }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    val shoppingItems = remember { mutableStateListOf<String>() }
 
-        ShoppingList(
-            items = filteredItems,
-            onCheckChange = { checkedItem ->
-                val index = shoppingItems.indexOfFirst { it.id == checkedItem.id }
-                if (index != -1) {
-                    val currentItem = shoppingItems[index]
-                    // Perbarui item di indeks tersebut
-                    shoppingItems[index] = currentItem.copy(isChecked = !currentItem.isChecked)
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    var snackbarJob by remember { mutableStateOf<Job?>(null) }
+
+    val filteredItems by remember(searchQuery, shoppingItems) {
+        derivedStateOf {
+            if (searchQuery.isBlank()) shoppingItems
+            else shoppingItems.filter { it.contains(searchQuery, ignoreCase = true) }
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+    ) { paddingValues ->
+        Column(
+            modifier = modifier
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp)
+        ) {
+            Title()
+
+            SnackbarHost(hostState = snackbarHostState)
+
+            ItemInput(
+                text = newItemText,
+                onTextChange = { newItemText = it },
+                onAddItem = {
+                    val newItem = newItemText.trim()
+                    if (newItem.isNotBlank()) {
+                        if (shoppingItems.contains(newItem)) {
+
+                            snackbarJob?.cancel()
+                            snackbarJob = coroutineScope.launch {
+
+                                snackbarHostState.currentSnackbarData?.dismiss()
+
+                                snackbarHostState.showSnackbar(
+                                    message = "Item '$newItem' sudah ada!",
+                                    duration = SnackbarDuration.Short
+                                )
+                            }
+                        } else {
+                            shoppingItems.add(newItem)
+                            newItemText = ""
+                        }
+                    }
                 }
-            },
-            onRemoveItem = { itemToRemove ->
-                shoppingItems.remove(itemToRemove)
-            }
-        )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SearchInput(
+                query = searchQuery,
+                onQueryChange = { searchQuery = it }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            ShoppingList(items = filteredItems)
+        }
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
-fun ShoppingListScreenPreview() {
+fun ShoppingListAppPreview() {
     Praktikum2Theme {
-        ShoppingListScreen()
+        Box(modifier = Modifier.fillMaxSize()) {
+            ShoppingListApp(modifier = Modifier.fillMaxSize())
+            ThemeSwitcher(
+                currentMode = ThemeMode.SYSTEM,
+                onModeChange = {},
+                modifier = Modifier.align(Alignment.BottomEnd)
+            )
+        }
     }
 }
