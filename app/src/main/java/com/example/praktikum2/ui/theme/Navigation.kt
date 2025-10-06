@@ -1,5 +1,3 @@
-git add .
-
 package com.example.praktikum2.ui
 
 import androidx.compose.animation.*
