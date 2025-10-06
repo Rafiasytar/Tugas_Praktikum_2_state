@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.praktikum2.ui.theme.ThemeMode
 
 sealed class Screens(val route: String, val title: String) {
     object Home : Screens("shopping_list", "Shopping List")
@@ -14,7 +15,11 @@ sealed class Screens(val route: String, val title: String) {
 }
 
 @Composable
-fun AppNavigation(navController: NavHostController) {
+fun AppNavigation(
+    navController: NavHostController,
+    themeMode: ThemeMode,
+    onThemeChange: (ThemeMode) -> Unit
+) {
     NavHost(
         navController = navController,
         startDestination = Screens.Home.route
@@ -38,7 +43,10 @@ fun AppNavigation(navController: NavHostController) {
             enterTransition = { slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(300)) },
             exitTransition = { slideOutHorizontally(targetOffsetX = { -1000 }, animationSpec = tween(300)) }
         ) {
-            SettingsScreen()
+            SettingsScreen(
+                currentTheme = themeMode,
+                onThemeChange = onThemeChange
+            )
         }
     }
 }

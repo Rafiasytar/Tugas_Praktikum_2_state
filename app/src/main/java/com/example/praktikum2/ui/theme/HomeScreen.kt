@@ -1,5 +1,3 @@
-// com/example/praktikum2/ui/HomeScreen.kt
-
 package com.example.praktikum2.ui
 
 import androidx.compose.foundation.layout.*
@@ -34,9 +32,8 @@ fun HomeScreen() {
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp)
-            .padding(top = 16.dp) // Beri sedikit padding atas
+            .padding(top = 16.dp)
     ) {
-        // Title() dihapus dari sini
         ItemInput(
             text = newItemText,
             onTextChange = { newItemText = it },

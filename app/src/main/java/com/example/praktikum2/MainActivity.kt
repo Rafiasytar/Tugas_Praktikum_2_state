@@ -1,5 +1,3 @@
-// com/example/praktikum2/MainActivity.kt
-
 package com.example.praktikum2
 
 import android.os.Bundle
@@ -25,8 +23,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Praktikum2Theme {
-                MainApp()
+            var themeMode by remember { mutableStateOf(ThemeMode.SYSTEM) }
+            Praktikum2Theme(themeMode = themeMode) {
+                MainApp(
+                    themeMode = themeMode,
+                    onThemeChange = { newTheme -> themeMode = newTheme }
+                )
             }
         }
     }
@@ -34,21 +36,20 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainApp() {
+fun MainApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // Daftar semua layar yang ada
     val screens = listOf(Screens.Home, Screens.Profile, Screens.Settings)
     val currentScreen = screens.find { it.route == currentRoute }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            DrawerContent(navController) {
+            DrawerContent(navController, currentRoute) {
                 scope.launch { drawerState.close() }
             }
         }
@@ -67,11 +68,16 @@ fun MainApp() {
             bottomBar = { BottomNavigationBar(navController) }
         ) { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
-                AppNavigation(navController = navController)
+                AppNavigation(
+                    navController = navController,
+                    themeMode = themeMode,
+                    onThemeChange = onThemeChange
+                )
             }
         }
     }
 }
+
 
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
@@ -103,17 +109,29 @@ fun BottomNavigationBar(navController: NavHostController) {
 }
 
 @Composable
-fun DrawerContent(navController: NavHostController, onItemSelected: () -> Unit) {
+fun DrawerContent(
+    navController: NavHostController,
+    currentRoute: String?,
+    onItemSelected: () -> Unit
+) {
+    val drawerItems = listOf(
+        Screens.Home to Icons.Default.Home,
+        Screens.Settings to Icons.Default.Settings
+    )
     ModalDrawerSheet {
         Text("Menu Aplikasi", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleMedium)
-        NavigationDrawerItem(
-            icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-            label = { Text("Settings") },
-            selected = false,
-            onClick = {
-                navController.navigate(Screens.Settings.route)
-                onItemSelected()
-            }
-        )
+        HorizontalDivider()
+        drawerItems.forEach { (screen, icon) ->
+            NavigationDrawerItem(
+                icon = { Icon(icon, contentDescription = screen.title) },
+                label = { Text(screen.title) },
+                selected = currentRoute == screen.route,
+                onClick = {
+                    navController.navigate(screen.route)
+                    onItemSelected()
+                },
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+            )
+        }
     }
 }

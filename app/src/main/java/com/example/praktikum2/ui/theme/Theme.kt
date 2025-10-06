@@ -12,8 +12,8 @@ import androidx.compose.ui.platform.LocalContext
 
 // Dark mode
 private val DarkColorScheme = darkColorScheme(
-    primary = HubBlueDark, // Mengganti HubOrangeDark menjadi HubBlueDark
-    onPrimary = HubOnBlueDark, // Mengganti HubOnOrangeDark menjadi HubOnBlueDark
+    primary = HubBlueDark,
+    onPrimary = HubOnBlueDark,
     background = HubBackgroundDark,
     onBackground = HubOnBackgroundDark,
     surface = HubSurfaceDark,
@@ -22,8 +22,8 @@ private val DarkColorScheme = darkColorScheme(
 
 // Light mode
 private val LightColorScheme = lightColorScheme(
-    primary = HubBlue, // Mengganti HubOrange menjadi HubBlue
-    onPrimary = HubOnBlue, // Mengganti HubOnOrange menjadi HubOnBlue
+    primary = HubBlue,
+    onPrimary = HubOnBlue,
     background = HubBackgroundLight,
     onBackground = HubOnBackgroundLight,
     surface = HubSurfaceLight,
